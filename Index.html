@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Calm Control System — Michael William</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy:    #0a0f1e;
+    --amber:   #d4883a;
+    --amberl:  #f0a855;
+    --cream:   #f5f0e8;
+    --white:   #ffffff;
+    --muted:   #8899aa;
+    --green:   #3d8c6e;
+    --card:    #111827;
+    --card2:   #1a2235;
+    --dark:    #0d1117;
+  }
+
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--navy);
+    color: var(--white);
+    font-family: "DM Sans", sans-serif;
+    overflow-x: hidden;
+  }
+
+  /* ── NOISE TEXTURE OVERLAY ── */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 40px;
+    background: rgba(10,15,30,0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(212,136,58,0.12);
+  }
+  .nav-logo {
+    font-family: "Syne", sans-serif;
+    font-size: 13px; font-weight: 800;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--amber);
+  }
+  .nav-logo span { color: var(--muted); font-weight: 400; }
+  .nav-link {
+    font-family: "Syne", sans-serif;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .nav-link:hover { color: var(--amber); }
+
+  /* ── HERO ── */
+  .hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    justify-content: center; align-items: flex-start;
+    padding: 120px 40px 80px;
+    overflow: hidden;
+  }
+
+  /* large background text */
+  .hero-bg-text {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: "DM Serif Display", serif;
+    font-size: clamp(80px, 18vw, 180px);
+    font-weight: 400;
+    color: rgba(212,136,58,0.04);
+    white-space: nowrap;
+    pointer-events: none;
+    user-select: none;
+    letter-spacing: -0.02em;
+  }
+
+  /* amber glow */
+  .hero::after {
+    content: "";
+    position: absolute;
+    top: 20%; right: -10%;
+    width: 600px; height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(212,136,58,0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-eyebrow {
+    font-family: "Syne", sans-serif;
+    font-size: 11px; font-weight: 800;
+    letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--amber);
+    margin-bottom: 24px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .hero-eyebrow::before {
+    content: "";
+    display: block;
+    width: 32px; height: 1px;
+    background: var(--amber);
+  }
+
+  .hero h1 {
+    font-family: "DM Serif Display", serif;
+    font-size: clamp(38px, 6vw, 72px);
+    font-weight: 400;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    max-width: 720px;
+    margin-bottom: 12px;
+  }
+  .hero h1 em {
+    font-style: italic;
+    color: var(--amber);
+  }
+
+  .hero-sub {
+    font-size: clamp(16px, 2vw, 20px);
+    color: var(--muted);
+    font-weight: 300;
+    line-height: 1.6;
+    max-width: 500px;
+    margin-bottom: 48px;
+    margin-top: 8px;
+  }
+
+  /* email form */
+  .email-form {
+    display: flex;
+    gap: 0;
+    max-width: 440px;
+    width: 100%;
+    position: relative;
+    z-index: 1;
+  }
+  .email-form input {
+    flex: 1;
+    padding: 16px 20px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(212,136,58,0.25);
+    border-right: none;
+    border-radius: 3px 0 0 3px;
+    color: var(--white);
+    font-family: "DM Sans", sans-serif;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .email-form input::placeholder { color: var(--muted); }
+  .email-form input:focus { border-color: rgba(212,136,58,0.6); }
+  .email-form button {
+    padding: 16px 24px;
+    background: var(--amber);
+    border: none;
+    border-radius: 0 3px 3px 0;
+    color: var(--navy);
+    font-family: "Syne", sans-serif;
+    font-size: 11px; font-weight: 800;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.2s;
+    white-space: nowrap;
+  }
+  .email-form button:hover { background: var(--amberl); }
+
+  .form-note {
+    margin-top: 10px;
+    font-size: 11px;
+    color: var(--muted);
+    font-style: italic;
+  }
+
+  /* scroll indicator */
+  .scroll-hint {
+    position: absolute;
+    bottom: 32px; left: 50%;
+    transform: translateX(-50%);
+    display: flex; flex-direction: column;
+    align-items: center; gap: 8px;
+    opacity: 0.4;
+    animation: bounce 2s infinite;
+  }
+  .scroll-hint span {
+    font-family: "Syne", sans-serif;
+    font-size: 9px; font-weight: 700;
+    letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--muted);
+  }
+  .scroll-arrow {
+    width: 1px; height: 32px;
+    background: linear-gradient(to bottom, var(--amber), transparent);
+  }
+  @keyframes bounce {
+    0%,100% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(6px); }
+  }
+
+  /* ── SECTION BASE ── */
+  section {
+    position: relative;
+    padding: 100px 40px;
+    z-index: 1;
+  }
+  .section-inner {
+    max-width: 960px;
+    margin: 0 auto;
+  }
+
+  /* ── DIVIDER ── */
+  .amber-divider {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(to right, transparent, rgba(212,136,58,0.3), transparent);
+  }
+
+  /* ── ABOUT SECTION ── */
+  .about { background: var(--dark); }
+  .about-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 64px;
+    align-items: center;
+  }
+  .about-eyebrow {
+    font-family: "Syne", sans-serif;
+    font-size: 10px; font-weight: 800;
+    letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--amber);
+    margin-bottom: 20px;
+  }
+  .about h2 {
+    font-family: "DM Serif Display", serif;
+    font-size: clamp(28px, 4vw, 44px);
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    margin-bottom: 24px;
+  }
+  .about h2 em { font-style: italic; color: var(--amber); }
+  .about p {
+    color: var(--muted);
+    font-size: 15px;
+    line-height: 1.8;
+    margin-bottom: 16px;
+  }
+  .about p strong { color: var(--white); font-weight: 500; }
+
+  /* quote card */
+  .quote-card {
+    background: var(--card);
+    border-radius: 4px;
+    padding: 40px;
+    border-top: 3px solid var(--amber);
+    position: relative;
+    overflow: hidden;
+  }
+  .quote-card::before {
+    content: "\201C";
+    position: absolute;
+    top: -20px; left: 20px;
+    font-family: "DM Serif Display", serif;
+    font-size: 160px;
+    color: rgba(212,136,58,0.06);
+    line-height: 1;
+    pointer-events: none;
+  }
+  .quote-text {
+    font-family: "DM Serif Display", serif;
+    font-style: italic;
+    font-size: clamp(18px, 2.5vw, 24px);
+    line-height: 1.5;
+    color: var(--white);
+    margin-bottom: 20px;
+    position: relative;
+  }
+  .quote-attr {
+    font-family: "Syne", sans-serif;
+    font-size: 10px; font-weight: 700;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--amber);
+  }
+  .quote-attr span { color: var(--muted); font-weight: 400; }
+
+  /* ── PILLARS SECTION ── */
+  .pillars { background: var(--navy); }
+  .pillars-header { text-align: center; margin-bottom: 64px; }
+  .pillars-header h2 {
+    font-family: "DM Serif Display", serif;
+    font-size: clamp(28px, 4vw, 48px);
+    line-height: 1.1;
+    margin-bottom: 12px;
+  }
+  .pillars-header h2 em { font-style: italic; color: var(--amber); }
+  .pillars-header p {
+    color: var(--muted);
+    font-size: 15px;
+    max-width: 480px;
+    margin: 0 auto;
+    line-height: 1.7;
+  }
+
+  .pillars-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+  }
+  .pillar-card {
+    background: var(--card);
+    padding: 40px 32px;
+    position: relative;
+    overflow: hidden;
+    transition: background 0.3s;
+  }
+  .pillar-card:hover { background: var(--card2); }
+  .pillar-card::after {
+    content: "";
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--amber);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s;
+  }
+  .pillar-card:hover::after { transform: scaleX(1); }
+
+  .pillar-icon {
+    font-size: 32px;
+    margin-bottom: 20px;
+    display: block;
+  }
+  .pillar-label {
+    font-family: "Syne", sans-serif;
+    font-size: 9px; font-weight: 800;
+    letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--amber);
+    margin-bottom: 12px;
+  }
+  .pillar-title {
+    font-family: "DM Serif Display", serif;
+    font-size: 22px;
+    margin-bottom: 12px;
+    line-height: 1.2;
+  }
+  .pillar-desc {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+
+  /* ── RESET SERIES SECTION ── */
+  .resets { background: var(--dark); }
+  .resets-inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: center;
+    max-width: 960px;
+    margin: 0 auto;
+  }
+  .resets h2 {
+    font-family: "DM Serif Display", serif;
+    font-size: clamp(28px, 4vw, 44px);
+    line-height: 1.1;
+    margin-bottom: 20px;
+  }
+  .resets h2 em { font-style: italic; color: var(--amber); }
+  .resets p {
+    color: var(--muted);
+    font-size: 15px;
+    line-height: 1.8;
+    margin-bottom: 32px;
+  }
+  .reset-episodes {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .episode {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 20px;
+    background: var(--card);
+    border-left: 3px solid rgba(212,136,58,0.2);
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .episode:hover {
+    border-left-color: var(--amber);
+    background: var(--card2);
+  }
+  .ep-num {
+    font-family: "Syne", sans-serif;
+    font-size: 10px; font-weight: 800;
+    letter-spacing: 0.1em;
+    color: var(--amber);
+    min-width: 28px;
+  }
+  .ep-title {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--white);
+  }
+  .ep-tag {
+    margin-left: auto;
+    font-family: "Syne", sans-serif;
+    font-size: 8px; font-weight: 800;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--navy);
+    background: var(--green);
+    padding: 3px 8px;
+    border-radius: 2px;
+  }
+  .ep-tag.coming {
+    background: rgba(136,153,170,0.2);
+    color: var(--muted);
+  }
+
+  /* ── INSTAGRAM CTA ── */
+  .instagram-cta {
+    background: var(--navy);
+    text-align: center;
+  }
+  .instagram-cta h2 {
+    font-family: "DM Serif Display", serif;
+    font-size: clamp(28px, 4vw, 44px);
+    line-height: 1.2;
+    margin-bottom: 16px;
+  }
+  .instagram-cta h2 em { font-style: italic; color: var(--amber); }
+  .instagram-cta p {
+    color: var(--muted);
+    font-size: 15px;
+    line-height: 1.7;
+    max-width: 480px;
+    margin: 0 auto 40px;
+  }
+  .ig-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 32px;
+    background: transparent;
+    border: 1px solid rgba(212,136,58,0.4);
+    border-radius: 3px;
+    color: var(--amber);
+    text-decoration: none;
+    font-family: "Syne", sans-serif;
+    font-size: 11px; font-weight: 800;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    transition: all 0.2s;
+  }
+  .ig-btn:hover {
+    background: rgba(212,136,58,0.08);
+    border-color: var(--amber);
+  }
+  .ig-btn svg {
+    width: 18px; height: 18px;
+    stroke: var(--amber); fill: none;
+    stroke-width: 1.5;
+  }
+
+  /* ── EMAIL SECTION ── */
+  .email-section {
+    background: var(--card);
+    border-top: 1px solid rgba(212,136,58,0.15);
+    border-bottom: 1px solid rgba(212,136,58,0.15);
+  }
+  .email-section-inner {
+    max-width: 560px;
+    margin: 0 auto;
+    text-align: center;
+  }
+  .email-section h2 {
+    font-family: "DM Serif Display", serif;
+    font-size: clamp(24px, 3.5vw, 38px);
+    line-height: 1.2;
+    margin-bottom: 12px;
+  }
+  .email-section h2 em { font-style: italic; color: var(--amber); }
+  .email-section p {
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.7;
+    margin-bottom: 32px;
+  }
+  .email-form-center {
+    display: flex;
+    gap: 0;
+    max-width: 420px;
+    margin: 0 auto;
+  }
+  .email-form-center input {
+    flex: 1;
+    padding: 15px 18px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(212,136,58,0.25);
+    border-right: none;
+    border-radius: 3px 0 0 3px;
+    color: var(--white);
+    font-family: "DM Sans", sans-serif;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .email-form-center input::placeholder { color: var(--muted); }
+  .email-form-center input:focus { border-color: rgba(212,136,58,0.5); }
+  .email-form-center button {
+    padding: 15px 22px;
+    background: var(--amber);
+    border: none;
+    border-radius: 0 3px 3px 0;
+    color: var(--navy);
+    font-family: "Syne", sans-serif;
+    font-size: 10px; font-weight: 800;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.2s;
+    white-space: nowrap;
+  }
+  .email-form-center button:hover { background: var(--amberl); }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--dark);
+    padding: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-top: 1px solid rgba(255,255,255,0.04);
+  }
+  .footer-logo {
+    font-family: "Syne", sans-serif;
+    font-size: 11px; font-weight: 800;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--amber);
+  }
+  .footer-handle {
+    font-family: "Syne", sans-serif;
+    font-size: 10px; font-weight: 600;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+  }
+  .footer-note {
+    font-size: 11px;
+    color: rgba(136,153,170,0.4);
+  }
+
+  /* ── ANIMATIONS ── */
+  .fade-up {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .fade-up.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 768px) {
+    nav { padding: 16px 20px; }
+    .hero { padding: 100px 20px 80px; }
+    section { padding: 72px 20px; }
+    .about-grid { grid-template-columns: 1fr; gap: 40px; }
+    .pillars-grid { grid-template-columns: 1fr; gap: 2px; }
+    .resets-inner { grid-template-columns: 1fr; gap: 40px; }
+    footer { flex-direction: column; gap: 12px; text-align: center; }
+    .email-form { flex-direction: column; }
+    .email-form input { border-right: 1px solid rgba(212,136,58,0.25); border-bottom: none; border-radius: 3px 3px 0 0; }
+    .email-form button { border-radius: 0 0 3px 3px; }
+    .email-form-center { flex-direction: column; }
+    .email-form-center input { border-right: 1px solid rgba(212,136,58,0.25); border-bottom: none; border-radius: 3px 3px 0 0; }
+    .email-form-center button { border-radius: 0 0 3px 3px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">The Calm Control <span>System</span></div>
+  <a href="#stay-connected" class="nav-link">Stay Connected</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg-text">REGULATE</div>
+
+  <div class="hero-eyebrow">Michael William</div>
+
+  <h1>
+    Corporate life is hard<br>
+    on your <em>nervous system.</em><br>
+    Here's what actually helps.
+  </h1>
+
+  <p class="hero-sub">
+    Tools. Science. Wisdom. 60 seconds.<br>
+    For the professional with no spare hour.
+  </p>
+
+  <form class="email-form" onsubmit="handleSubmit(event)">
+    <input type="email" placeholder="Your email address" id="hero-email" required>
+    <button type="submit">Join the list</button>
+  </form>
+  <p class="form-note">No spam. Just tools that work. Unsubscribe any time.</p>
+
+  <div class="scroll-hint">
+    <span>Scroll</span>
+    <div class="scroll-arrow"></div>
+  </div>
+</section>
+
+<div class="amber-divider"></div>
+
+<!-- ABOUT -->
+<section class="about">
+  <div class="section-inner">
+    <div class="about-grid fade-up">
+      <div>
+        <div class="about-eyebrow">The Story</div>
+        <h2>What if the Stoics just didn't have <em>neuroscience yet?</em></h2>
+        <p>
+          Marcus Aurelius described the stress response in 170AD. Epictetus mapped the nervous system in 100AD. They didn't have the language we have now — but they understood the system.
+        </p>
+        <p>
+          <strong>The Calm Control System</strong> sits at the crossover between ancient stoic wisdom, modern neuroscience and the reality of corporate life with a full plate.
+        </p>
+        <p>
+          Not a philosopher. Just someone who spent 10 years figuring out the overlap — and found that it works.
+        </p>
+      </div>
+      <div class="quote-card">
+        <p class="quote-text">
+          "You have power over your mind — not outside events. Realise this, and you will find strength."
+        </p>
+        <div class="quote-attr">
+          Marcus Aurelius <span>— Meditations, 170AD</span>
+        </div>
+        <div style="margin-top:20px; padding-top:20px; border-top:1px solid rgba(212,136,58,0.15);">
+          <p class="quote-text" style="font-size:16px;">
+            "He was describing your prefrontal cortex. He just didn't have the word for it."
+          </p>
+          <div class="quote-attr">
+            The Calm Control System <span>— 2025</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="amber-divider"></div>
+
+<!-- PILLARS -->
+<section class="pillars">
+  <div class="section-inner">
+    <div class="pillars-header fade-up">
+      <h2>Three pillars.<br><em>One system.</em></h2>
+      <p>Everything on this channel sits at the intersection of these three things. No fluff. No retreats required.</p>
+    </div>
+    <div class="pillars-grid fade-up">
+      <div class="pillar-card">
+        <span class="pillar-icon">🧠</span>
+        <div class="pillar-label">Pillar One</div>
+        <div class="pillar-title">The Science</div>
+        <p class="pillar-desc">Nervous system regulation explained in plain language. The 90-second stress response. HRV. The polyvagal ladder. Science that makes your Monday morning make sense.</p>
+      </div>
+      <div class="pillar-card">
+        <span class="pillar-icon">📖</span>
+        <div class="pillar-label">Pillar Two</div>
+        <div class="pillar-title">Ancient Calm</div>
+        <p class="pillar-desc">Stoicism wasn't philosophy. It was nervous system management before neuroscience had words for it. Marcus Aurelius. Epictetus. Seneca. Still relevant. Still accurate.</p>
+      </div>
+      <div class="pillar-card">
+        <span class="pillar-icon">⚡</span>
+        <div class="pillar-label">Pillar Three</div>
+        <div class="pillar-title">The Tools</div>
+        <p class="pillar-desc">60-second regulation tools built for corporate life. No equipment. No spare hour. No lifestyle overhaul. Tools that work at your desk, in your car, before you walk in the door.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="amber-divider"></div>
+
+<!-- RESET SERIES -->
+<section class="resets">
+  <div class="resets-inner fade-up">
+    <div>
+      <div class="about-eyebrow">#ResetIn60</div>
+      <h2>60 seconds.<br><em>Done with me.</em></h2>
+      <p>
+        A series of guided nervous system resets for people with no time. No equipment. No experience. Just 60 seconds that your body will actually feel.
+      </p>
+      <a href="https://www.instagram.com/thecalmcontrolsystem" target="_blank" class="ig-btn">
+        <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+        Watch on Instagram
+      </a>
+    </div>
+    <div class="reset-episodes">
+      <div class="episode">
+        <span class="ep-num">EP01</span>
+        <span class="ep-title">The Desk Reset</span>
+        <span class="ep-tag">Live</span>
+      </div>
+      <div class="episode">
+        <span class="ep-num">EP02</span>
+        <span class="ep-title">The Door Reset</span>
+        <span class="ep-tag coming">Coming</span>
+      </div>
+      <div class="episode">
+        <span class="ep-num">EP03</span>
+        <span class="ep-title">The Inbox Reset</span>
+        <span class="ep-tag coming">Coming</span>
+      </div>
+      <div class="episode">
+        <span class="ep-num">EP04</span>
+        <span class="ep-title">The Meeting Reset</span>
+        <span class="ep-tag coming">Coming</span>
+      </div>
+      <div class="episode">
+        <span class="ep-num">EP05</span>
+        <span class="ep-title">The 3pm Reset</span>
+        <span class="ep-tag coming">Coming</span>
+      </div>
+      <div class="episode">
+        <span class="ep-num">EP06</span>
+        <span class="ep-title">The School Run Reset</span>
+        <span class="ep-tag coming">Coming</span>
+      </div>
+      <div class="episode">
+        <span class="ep-num">EP07</span>
+        <span class="ep-title">The Sunday Reset</span>
+        <span class="ep-tag coming">Coming</span>
+      </div>
+      <div class="episode">
+        <span class="ep-num">EP08</span>
+        <span class="ep-title">The Bedtime Reset</span>
+        <span class="ep-tag coming">Coming</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="amber-divider"></div>
+
+<!-- INSTAGRAM CTA -->
+<section class="instagram-cta">
+  <div class="section-inner fade-up">
+    <h2>Daily content.<br><em>Free. On Instagram.</em></h2>
+    <p>
+      Science, stoicism and 60-second tools posted every day. For the corporate professional with a full plate and no spare hour.
+    </p>
+    <a href="https://www.instagram.com/thecalmcontrolsystem" target="_blank" class="ig-btn">
+      <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+      @thecalmcontrolsystem
+    </a>
+  </div>
+</section>
+
+<div class="amber-divider"></div>
+
+<!-- EMAIL CAPTURE -->
+<section class="email-section" id="stay-connected">
+  <div class="email-section-inner fade-up">
+    <h2>Stay <em>connected.</em></h2>
+    <p>
+      When the first toolkit is ready — you'll hear about it here first. No spam. Just tools, when they're built.
+    </p>
+    <form class="email-form-center" onsubmit="handleSubmit(event)">
+      <input type="email" placeholder="Your email address" required>
+      <button type="submit">Notify me</button>
+    </form>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">The Calm Control System</div>
+  <div class="footer-handle">@thecalmcontrolsystem</div>
+  <div class="footer-note">© 2026 Michael William</div>
+</footer>
+
+<script>
+  // email submit placeholder
+  function handleSubmit(e) {
+    e.preventDefault();
+    const btn = e.target.querySelector('button');
+    const input = e.target.querySelector('input');
+    btn.textContent = 'You\'re on the list ✓';
+    btn.style.background = '#3d8c6e';
+    btn.style.color = '#fff';
+    input.value = '';
+    input.disabled = true;
+    setTimeout(() => {
+      btn.textContent = btn.dataset.orig || 'Join the list';
+      btn.style.background = '';
+      btn.style.color = '';
+      input.disabled = false;
+    }, 3000);
+  }
+
+  // scroll fade-in
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.15 });
+
+  document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
